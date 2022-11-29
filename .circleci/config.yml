@@ -7,7 +7,6 @@ workflows:
     jobs:
       - node/test:
           pkg-manager: yarn
-          yarn-run: test
           matrix:
             parameters:
               version:
