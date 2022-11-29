@@ -5,6 +5,10 @@ orbs:
 workflows:
   test_and_release:
     jobs:
+      - node/run:
+          name: lint
+          pkg-manager: yarn
+          yarn-run: lint
       - node/test:
           pkg-manager: yarn
           matrix:
