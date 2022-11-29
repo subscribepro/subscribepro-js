@@ -1,0 +1,25 @@
+{
+  "name": "subscribepro",
+  "version": "0.0.1",
+  "description": "Interface for the SubscribePro API",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subscribepro/subscribepro-js.git"
+  },
+  "author": "SubscribePro",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/subscribepro/subscribepro-js/issues"
+  },
+  "homepage": "https://github.com/subscribepro/subscribepro-js#readme",
+  "devDependencies": {
+    "typescript": "^4.9.3"
+  },
+  "files": ["lib"]
+}
