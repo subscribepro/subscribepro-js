@@ -9,7 +9,7 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
-      - run: yarn semantic-release --debug
+      - run: yarn semantic-release
 
 workflows:
   test_and_release:
