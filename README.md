@@ -11,13 +11,13 @@ To learn more about Subscribe Pro you can visit us at https://www.subscribepro.c
 This library is packaged as an [NPM package](https://www.npmjs.com/package/subscribepro). You can install with NPM through the standard method:
 
 ```
-npm install subscribepro
+npm install @subscribepro/sdk
 ```
 
 If you are using YARN you add this library to your package.json with:
 
 ```
-yarn add subscribepro
+yarn add @subscribepro/sdk
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ yarn add subscribepro
 As this is packaged as a standard NPM typescript module the import should be familiar:
 
 ```javascript
-import SubscribePro from 'subscribepro';
+import { SubscribePro } from '@subscribepro/sdk';
 
 SubscribePro.configure({
   accessToken: 'ACCESS_TOKEN',
@@ -41,7 +41,7 @@ The API is split in to two versions that reflect the SubscribePro API versioning
 ### Example (Retrieve and Update a Product V2 API)
 
 ```javascript
-import SubscribePro from 'subscribepro';
+import { SubscribePro } from '@subscribepro/sdk';
 
 SubscribePro.configure({
   accessToken: 'ACCESS_TOKEN',
