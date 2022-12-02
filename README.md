@@ -38,6 +38,20 @@ The API is split in to two versions that reflect the SubscribePro API versioning
 - [V1 and V2 API Docs](https://api.subscribepro.com/docs/rest) (With the exception of the vault endpoints which are both V1 and V2, all endpoints are V2)
 - [V3 API Docs](https://api.subscribepro.com/docs)
 
+### Example (Retrieve and Update a Product V3 API)
+
+```javascript
+import { SubscribePro } from '@subscribepro/sdk';
+
+SubscribePro.configure({
+  accessToken: 'ACCESS_TOKEN',
+  environmentKey: 'ENVIRONMENT_KEY'
+})
+
+let product = SubscribePro.V3.Products.findById({id: '12345'});
+SubscribePro.V3.Products.update({id: product.id, data: {name: `${product.name} (2022)`}});
+```
+
 ### Example (Retrieve and Update a Product V2 API)
 
 ```javascript
