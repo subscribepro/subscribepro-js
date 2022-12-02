@@ -8,7 +8,7 @@ To learn more about Subscribe Pro you can visit us at https://www.subscribepro.c
 
 ## Installation
 
-This library is packaged as an [NPM package](https://www.npmjs.com/package/subscribepro). You can install with NPM through the standard method:
+This library is packaged as an [NPM package](https://www.npmjs.com/package/@subscribepro/sdk). You can install with NPM through the standard method:
 
 ```
 npm install @subscribepro/sdk
