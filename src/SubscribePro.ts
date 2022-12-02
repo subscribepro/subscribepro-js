@@ -1,4 +1,5 @@
 import Client from "./Client";
+import V2 from "./V2";
 
 export type Config = {
   endpointUrl?: string;
@@ -13,6 +14,8 @@ export class SubscribePro {
     accessToken: '',
     environmentKey: '',
   };
+
+  static V2 = V2;
 
   static get client() {
     return SubscribePro._client;
