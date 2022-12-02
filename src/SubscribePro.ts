@@ -1,5 +1,6 @@
 import Client from "./Client";
 import V2 from "./V2";
+import V3 from "./V3";
 
 export type Config = {
   endpointUrl?: string;
@@ -16,6 +17,7 @@ export class SubscribePro {
   };
 
   static V2 = V2;
+  static V3 = V3;
 
   static get client() {
     return SubscribePro._client;
