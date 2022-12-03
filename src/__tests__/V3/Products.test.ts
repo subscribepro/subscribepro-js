@@ -2,6 +2,7 @@ import SubscribePro, { Client } from "../../";
 
 describe("SubscribePro.V3.Products", () => {
   let client: Client;
+  
   beforeEach(() => {
     client = new Client({ endpointUrl: "https://api.subscribepro.com", accessToken: "ACCESS" });
     client.request = jest.fn<Promise<any>, [any]>();
@@ -24,7 +25,7 @@ describe("SubscribePro.V3.Products", () => {
   });
 
   test("create creates a product", async () => {
-    let product = {name: "Product", sku: "SKU", price: 1.0};
+    const product = {name: "Product", sku: "SKU", price: 1.0};
     await SubscribePro.V3.Products.create({client, data: product});
     expect(client.request).toHaveBeenCalledWith({
       path: "/products",
@@ -34,7 +35,7 @@ describe("SubscribePro.V3.Products", () => {
   });
 
   test("update updates a product", async () => {
-    let product = {name: "Product", sku: "SKU", price: 1.0};
+    const product = {name: "Product", sku: "SKU", price: 1.0};
     await SubscribePro.V3.Products.update({client, id: 1, data: product});
     expect(client.request).toHaveBeenCalledWith({
       path: "/products/1",

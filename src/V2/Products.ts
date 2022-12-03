@@ -1,9 +1,10 @@
+import { JSONObject } from '../Client';
 import ResourceServiceBase from './ResourceServiceBase'
 
 type ProductConfigurationProfileType = {
   id: number;
   name: string;
-  data: any[];
+  data: JSONObject;
   created: string;
   updated: string;
   environment: string;
@@ -53,7 +54,7 @@ type ProductType = {
   trial_email_threshold_days: number;
   trial_welcome_email_template_code: string;
   is_subscription_enabled: boolean;
-  user_defined_fields: any[];
+  user_defined_fields: Record<string, string>;
   created: string;
   updated: string;
 };
@@ -62,7 +63,7 @@ type CreateProductType = {
   sku: string;
   name: string;
   thumbnail_url?: string;
-  user_defined_fields?: any[];
+  user_defined_fields?: Record<string, string>;
   price: string;
   msrp?: string;
   sale_price?: string;

@@ -1,4 +1,4 @@
-import Client from "../Client";
+import Client, { JSONObject } from "../Client";
 
 export abstract class ResourceServiceBase<
   RecordType,
@@ -11,35 +11,48 @@ export abstract class ResourceServiceBase<
   abstract resourcePath({id}:{id:string|number}):string;
 
   preProcessSearchParams(params: SearchParams): URLSearchParams {
-    let searchParams = new URLSearchParams();
+    const searchParams = new URLSearchParams();
     for (const key in params) {
       searchParams.append(key, String(params[key])); // Array values are converted to comma-separated strings
     }
     return searchParams;
   }
 
-  async findById({client, id}:{client: Client, id:string|number}): Promise<RecordType> {
-    return await client.request({path: this.resourcePath({id}), method: "GET"});
+  processJSONToRecord(json: JSONObject | null): RecordType | null {
+    return json ? json as RecordType : null;
+  }
+
+  processJSONToCollection(json: JSONObject | null): CollectionType | null {
+    return json ? json as CollectionType : null;
+  }
+
+  async findById({client, id}:{client: Client, id:string|number}): Promise<RecordType | null> {
+    const response = await client.request({path: this.resourcePath({id}), method: "GET"})
+    return this.processJSONToRecord(response);
   } 
 
-  async findAll({client, params}:{client: Client, params?: SearchParams}): Promise<CollectionType> {
+  async findAll({client, params}:{client: Client, params?: SearchParams}): Promise<CollectionType | null> {
     let path = this.collectionPath();
     if (params) {
       path = `${path}?${this.preProcessSearchParams(params).toString()}`;
     }
-    return await client.request({path, method: "GET"});
+    const response = await client.request({path, method: "GET"});
+    return this.processJSONToCollection(response);
   }
 
-  async create({client, data}:{client: Client, data: CreateType}): Promise<any> {
-    return await client.request({path: this.collectionPath(), method: "POST", body: JSON.stringify(data)});
+  async create({client, data}:{client: Client, data: CreateType}): Promise<RecordType | null> {
+    const response = await client.request({path: this.collectionPath(), method: "POST", body: JSON.stringify(data)});
+    return this.processJSONToRecord(response);
   }
 
-  async update({client, id, data}:{client: Client, id:string|number, data: UpdateType}): Promise<any> {
-    return await client.request({path: this.resourcePath({id}), method: "PATCH", body: JSON.stringify(data)});
+  async update({client, id, data}:{client: Client, id:string|number, data: UpdateType}): Promise<RecordType | null> {
+    const response = await client.request({path: this.resourcePath({id}), method: "PATCH", body: JSON.stringify(data)});
+    return this.processJSONToRecord(response);
   }
 
-  async delete({client, id}:{client: Client, id:string|number}): Promise<any> {
-    return await client.request({path: this.resourcePath({id}), method: "DELETE"});
+  async delete({client, id}:{client: Client, id:string|number}): Promise<null> {
+    await client.request({path: this.resourcePath({id}), method: "DELETE"});
+    return null;
   }
 };
 

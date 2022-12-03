@@ -14,7 +14,7 @@ describe('SubscribePro', () => {
   });
 
   test('config can be set', () => {
-    let [accessToken, environmentKey] = ['ACCESS_TOKEN', 'ENVIRONMENT_KEY'];
+    const [accessToken, environmentKey] = ['ACCESS_TOKEN', 'ENVIRONMENT_KEY'];
     SubscribePro.configure({
       accessToken,
       environmentKey

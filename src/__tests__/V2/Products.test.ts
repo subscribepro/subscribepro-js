@@ -25,7 +25,7 @@ describe("SubscribePro.V2.Products", () => {
   });
 
   test("createOne creates a product", async () => {
-    let product = {name: "Product", sku: "SKU", price: "1.00"};
+    const product = {name: "Product", sku: "SKU", price: "1.00"};
     await SubscribePro.V2.Products.createOne({client, data: product});
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/product",
@@ -35,7 +35,7 @@ describe("SubscribePro.V2.Products", () => {
   });
 
   test("createAll creates a product", async () => {
-    let products = {
+    const products = {
       products: [ {name: "Product", sku: "SKU", price: "1.00"} ]
     };
     await SubscribePro.V2.Products.createAll({client, data: products});
@@ -47,7 +47,7 @@ describe("SubscribePro.V2.Products", () => {
   });
 
   test("updateOne updates a product", async () => {
-    let product = {name: "Product", sku: "SKU", price: "1.00"};
+    const product = {name: "Product", sku: "SKU", price: "1.00"};
     await SubscribePro.V2.Products.updateOne({client, id: 1, data: product});
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/products/1",
@@ -57,7 +57,7 @@ describe("SubscribePro.V2.Products", () => {
   });
 
   test("patchOne updates a product", async () => {
-    let patch:JSONPatchData = {op: "replace", path: "/name", value: "Product"};
+    const patch:JSONPatchData = {op: "replace", path: "/name", value: "Product"};
     await SubscribePro.V2.Products.patchOne({client, id: 1234, data: patch});
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/products/1234",
@@ -67,7 +67,7 @@ describe("SubscribePro.V2.Products", () => {
   });
 
   test("patchAll updates a product", async () => {
-    let patch:JSONPatchData = {op: "replace", ids: ["1234"], path: "/name", value: "Product"};
+    const patch:JSONPatchData = {op: "replace", ids: ["1234"], path: "/name", value: "Product"};
     await SubscribePro.V2.Products.patchAll({client, data: [patch]});
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/products",
