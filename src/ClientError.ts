@@ -1,9 +1,9 @@
 export class ClientError extends Error {
   status: number;
   statusText: string;
-  response: any;
+  response: string;
 
-  constructor(status: number, statusText: string, response: any) {
+  constructor(status: number, statusText: string, response: string) {
     super(`${status} ${statusText} -- ${JSON.stringify(response)}`);
     this.status = status;
     this.statusText = statusText;

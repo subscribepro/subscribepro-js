@@ -6,15 +6,15 @@ describe('Client', () => {
   });
 
   it('should configure endpointUrl and accessToken when initialized', () => {
-    let client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
+    const client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
     expect(client.endpointUrl).toBe('https://api.subscribepro.com');
     expect(client.accessToken).toBe('ACCESS');
   });
 
   describe('mergeHeaders', () => {
     it('should merge headers', () => {
-      let client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
-      let headers = client.mergeHeaders({
+      const client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
+      const headers = client.mergeHeaders({
         'X-Test': 'test',
       });
       expect(headers.get('Content-Type')).toBe('application/json');
@@ -25,47 +25,60 @@ describe('Client', () => {
   });
 
   describe('request', () => {
-    it('should make a request', async () => {
-      let client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
-      let mockHeaders = jest.fn();
-      let mockReturnValue = jest.fn();
+    it('should make a request and return the JSON', async () => {
+      const client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
+      const mockHeaders = jest.fn();
+      const mockReturnValue = {test: 'hi'};
       client.mergeHeaders = jest.fn().mockReturnValue(mockHeaders);
       global.fetch = jest.fn((url, init) => {
-        let {method, headers, body, ..._} = init || {};
+        const {method, headers, body} = init || {};
         expect(url).toBe('https://api.subscribepro.com/v1/customers');
         expect(method).toBe('GET');
         expect(headers).toBe(mockHeaders);
         expect(body).toBeUndefined();
-        return Promise.resolve({
-          url, ok: true, status: 200, statusText: 'OK',
-          json: () => Promise.resolve(mockReturnValue),
-        } as Response);
+        return Promise.resolve(new Response(JSON.stringify(mockReturnValue), {status: 200, statusText: 'OK'}));
       });
 
-      let response = await client.request({path: '/v1/customers', method: 'GET'});
-      expect(response).toBe(mockReturnValue);
+      const response = await client.request({path: '/v1/customers', method: 'GET'});
+      expect(response).toEqual(mockReturnValue);
+    });
+
+    it('should make a request and return null', async () => {
+      const client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
+      const mockHeaders = jest.fn();
+      client.mergeHeaders = jest.fn().mockReturnValue(mockHeaders);
+      global.fetch = jest.fn((url, init) => {
+        const {method, headers, body} = init || {};
+        expect(url).toBe('https://api.subscribepro.com/v1/customers');
+        expect(method).toBe('GET');
+        expect(headers).toBe(mockHeaders);
+        expect(body).toBeUndefined();
+        return Promise.resolve(new Response(null, {status: 204, statusText: 'No Content'}));
+      });
+
+      const response = await client.request({path: '/v1/customers', method: 'GET'});
+      expect(response).toBe(null);
     });
 
     it('should throw an error when response is not ok', async () => {
-      let client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
-      let mockHeaders = jest.fn();
-      let mockReturnValue = {title: 'ERROR'};
+      const client = new Client({endpointUrl: 'https://api.subscribepro.com', accessToken: 'ACCESS'});
+      const mockHeaders = jest.fn();
+      const mockReturnValue = {title: 'ERROR'};
       client.mergeHeaders = jest.fn().mockReturnValue(mockHeaders);
       global.fetch = jest.fn((url, init) => {
-        let {method, headers, body, ..._} = init || {};
+        const {method, headers, body} = init || {};
         expect(url).toBe('https://api.subscribepro.com/v1/customers');
         expect(method).toBe('GET');
         expect(headers).toBe(mockHeaders);
         expect(body).toBeUndefined();
-        return Promise.resolve({
-          url, ok: false, status: 400, statusText: 'Bad Request',
-          json: () => Promise.resolve(mockReturnValue),
-        } as Response);
+        return Promise.resolve(
+          new Response(JSON.stringify(mockReturnValue), {status: 400, statusText: 'Bad Request'})
+        );
       });
 
       await expect(async () => {
         await client.request({path: '/v1/customers', method: 'GET'});
-      }).rejects.toThrowError(new ClientError(400, 'Bad Request', mockReturnValue));
+      }).rejects.toThrow(new ClientError(400, 'Bad Request', JSON.stringify(mockReturnValue)));
     });
   });
 });

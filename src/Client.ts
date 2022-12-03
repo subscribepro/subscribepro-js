@@ -4,6 +4,10 @@ import ClientError from './ClientError';
 type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 type SimpleHeaders = Record<string, string>;
 
+export type JSONValue = string | number | boolean | null | JSONObject | JSONArray;
+export type JSONArray = JSONValue[];
+export type JSONObject = { [member: string]: JSONValue };
+
 export class Client {
   endpointUrl: string;
   accessToken: string;
@@ -22,17 +26,20 @@ export class Client {
     });
   }
 
-  async request({method, path, headers, body}: {method: HTTPMethod, path: string, headers?: SimpleHeaders, body?: BodyInit}) {
+  request = async ({method, path, headers, body}: {method: HTTPMethod, path: string, headers?: SimpleHeaders, body?: BodyInit}) => {
     const response = await fetch(`${this.endpointUrl}${path}`, {
       method,
       headers: this.mergeHeaders(headers || {}),
       body,
     });
-    const json = await response.json();
     if (response.ok) {
-      return json;
+      if (response.status == 204) {
+        return null;
+      } else {
+        return await response.json() as JSONObject;
+      }
     }
-    throw new ClientError(response.status, response.statusText, json);
+    throw new ClientError(response.status, response.statusText, await response.text());
   }
 }
 
