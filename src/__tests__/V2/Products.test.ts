@@ -30,7 +30,7 @@ describe("SubscribePro.V2.Products", () => {
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/product",
       method: "POST",
-      body: JSON.stringify(product),
+      body: JSON.stringify({product}),
     });
   });
 
@@ -42,7 +42,7 @@ describe("SubscribePro.V2.Products", () => {
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/products",
       method: "POST",
-      body: JSON.stringify(products),
+      body: JSON.stringify({products}),
     });
   });
 
@@ -52,7 +52,7 @@ describe("SubscribePro.V2.Products", () => {
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/products/1",
       method: "POST",
-      body: JSON.stringify(product),
+      body: JSON.stringify({product}),
     });
   });
 

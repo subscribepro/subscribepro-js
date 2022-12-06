@@ -37,4 +37,7 @@ module.exports = {
   },
   plugins: ['eslint-plugin-jsdoc', '@typescript-eslint'],
   root: true,
+  rules: {
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  },
 };

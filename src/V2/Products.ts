@@ -1,5 +1,5 @@
 import { JSONObject } from '../Client';
-import ResourceServiceBase from './ResourceServiceBase'
+import ResourceServiceBase, { ResourceBulkCreateable, ResourceCRUable, ResourcePatchable } from './ResourceServiceBase'
 
 type ProductConfigurationProfileType = {
   id: number;
@@ -100,16 +100,29 @@ type BulkCreateProductType = {
 
 type UpdateProductType = Partial<CreateProductType>;
 
-class ProductsService extends ResourceServiceBase<
-  ProductType,
-  CreateProductType,
-  BulkCreateProductType,
-  UpdateProductType
-> {
+class ProductsServiceBase extends ResourceServiceBase<ProductType, ProductType[]> {
+  resourceName() { return 'product'; }
+  collectionName() { return 'products'; }
   collectionPath() { return "/services/v2/products" };
   singularPath() { return "/services/v2/product" }
   resourcePath({id}:{id:string|number}) { return `${this.collectionPath()}/${id}` };
 };
+
+const ProductsServiceCRU = ResourceCRUable<
+  typeof ProductsServiceBase, ProductType, ProductType[], CreateProductType, UpdateProductType
+>(
+  ProductsServiceBase
+)
+
+const ProductsServiceBulkCreateWithCRUD = ResourceBulkCreateable<
+  typeof ProductsServiceCRU, BulkCreateProductType
+>(
+  ProductsServiceCRU
+)
+
+const ProductsService = ResourcePatchable<typeof ProductsServiceBulkCreateWithCRUD, ProductType>(
+  ProductsServiceBulkCreateWithCRUD
+);
 
 export const Products = new ProductsService();
 export default Products;

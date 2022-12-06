@@ -1,4 +1,4 @@
-import ResourceServiceBase from './ResourceServiceBase';
+import ResourceServiceBase, { ResourceReadable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable } from './ResourceServiceBase';
 
 type ProductType = {
   id: number,
@@ -44,10 +44,21 @@ type CreateProductType = Partial<Omit<ProductType, "id">> & {
   price: number,
 };
 
-class ProductsService extends ResourceServiceBase<ProductType, ProductSearchParams, CreateProductType> {
+class ProductsServiceBase extends ResourceServiceBase<ProductType> {
   collectionPath() { return "/products" };
   resourcePath({id}:{id:string|number}) { return `${this.collectionPath()}/${id}` };
 };
+
+const ProductsServiceR = ResourceReadable<typeof ProductsServiceBase, ProductType, ProductSearchParams>(
+  ProductsServiceBase
+);
+const ProductsServiceRU = ResourceUpdateable<typeof ProductsServiceR, ProductType, CreateProductType>(
+  ProductsServiceR
+);
+const ProductsServiceCRU = ResourceCreateable<typeof ProductsServiceRU, ProductType, CreateProductType>(
+  ProductsServiceRU
+);
+const ProductsService = ResourceDeleteable<typeof ProductsServiceCRU, ProductType>(ProductsServiceCRU);
 
 export const Products = new ProductsService();
 export default Products;
