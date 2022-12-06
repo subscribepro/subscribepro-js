@@ -35,7 +35,12 @@ export function ResourceReadable<
     preProcessSearchParams(params: SearchParams): URLSearchParams {
       const searchParams = new URLSearchParams();
       for (const key in params) {
-        searchParams.append(key, String(params[key])); // Array values are converted to comma-separated strings
+        const value = params[key];
+        if (Array.isArray(value)) {
+          value.forEach((v) => searchParams.append(`${key}[]`, String(v)));
+        } else {
+          searchParams.append(key, String(params[key]));
+        }
       }
       return searchParams;
     }
