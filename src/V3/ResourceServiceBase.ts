@@ -1,4 +1,5 @@
 import Client, { JSONObject } from "../Client";
+import SubscribePro from "../SubscribePro";
 
 interface ResourceService<RecordType, CollectionType=RecordType[]> {
   collectionPath():string;
@@ -39,12 +40,16 @@ export function ResourceReadable<
       return searchParams;
     }
 
-    async findById({client, id}:{client: Client, id:string|number}): Promise<RecordType | null> {
+    async findById({client, id}:{client?: Client, id:string|number}): Promise<RecordType | null> {
+      client ||= SubscribePro.client;
+
       const response = await client.request({path: this.resourcePath({id}), method: "GET"})
       return this.processJSONToRecord(response);
     } 
   
-    async findAll({client, params}:{client: Client, params?: SearchParams}): Promise<CollectionType | null> {
+    async findAll({client, params}:{client?: Client, params?: SearchParams}): Promise<CollectionType | null> {
+      client ||= SubscribePro.client;
+
       let path = this.collectionPath();
       if (params) {
         path = `${path}?${this.preProcessSearchParams(params).toString()}`;
@@ -62,8 +67,15 @@ export function ResourceUpdateable<
   CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
-    async update({client, id, data}:{client: Client, id:string|number, data: UpdateType}): Promise<RecordType | null> {
-      const response = await client.request({path: this.resourcePath({id}), method: "PATCH", body: JSON.stringify(data)});
+    async update({client, id, data}:{client?: Client, id:string|number, data: UpdateType}): Promise<RecordType | null> {
+      client ||= SubscribePro.client;
+
+      const response = await client.request({
+        path: this.resourcePath({id}),
+        method: "PATCH",
+        headers: {'Content-Type': 'application/merge-patch+json'},
+        body: JSON.stringify(data)
+      });
       return this.processJSONToRecord(response);
     }
   };
@@ -76,7 +88,9 @@ export function ResourceCreateable<
   CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
-    async create({client, data}:{client: Client, data: CreateType}): Promise<RecordType | null> {
+    async create({client, data}:{client?: Client, data: CreateType}): Promise<RecordType | null> {
+      client ||= SubscribePro.client;
+
       const response = await client.request({path: this.collectionPath(), method: "POST", body: JSON.stringify(data)});
       return this.processJSONToRecord(response);
     }
@@ -89,7 +103,9 @@ export function ResourceDeleteable<
   CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
-    async delete({client, id}:{client: Client, id:string|number}): Promise<null> {
+    async delete({client, id}:{client?: Client, id:string|number}): Promise<null> {
+      client ||= SubscribePro.client;
+
       await client.request({path: this.resourcePath({id}), method: "DELETE"});
       return null;
     }

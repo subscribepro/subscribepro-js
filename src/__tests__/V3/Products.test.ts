@@ -40,6 +40,7 @@ describe("SubscribePro.V3.Products", () => {
     expect(client.request).toHaveBeenCalledWith({
       path: "/products/1",
       method: "PATCH",
+      headers: { "Content-Type": "application/merge-patch+json" },
       body: JSON.stringify(product),
     });
   });
