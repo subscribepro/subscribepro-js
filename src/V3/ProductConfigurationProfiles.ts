@@ -3,12 +3,8 @@ import ResourceServiceBase, { ResourceReadable, ResourceSearchable } from './Res
 type ProductConfigurationProfileType = {
   id: number,
   environmentId: number,
-  email: string,
-  firstName: string,
-  lastName: number,
-  defaultAddressId?: number,
-  defaultBillingAddressId?: number,
-  defaultShippingAddressId?: number,
+  name: string,
+  data: string,
   created: string,
   updated: string,
 };

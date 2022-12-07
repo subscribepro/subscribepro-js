@@ -4,6 +4,7 @@ import Environments from "./Environments";
 import GroupSubscriptions from "./GroupSubscriptions";
 import ProductConfigurationProfiles from "./ProductConfigurationProfiles";
 import Products from "./Products";
+import RightToBeForgottenRequests from "./RightToBeForgottenRequests";
 import ShippingQuotes from "./ShippingQuotes";
 
 export const V3 = {
@@ -13,6 +14,7 @@ export const V3 = {
   GroupSubscriptions,
   ProductConfigurationProfiles,
   Products,
+  RightToBeForgottenRequests,
   ShippingQuotes,
 };
 

@@ -10,7 +10,7 @@ describe("SubscribePro.V3.ProductConfigurationProfiles", () => {
     client.request = mockRequest;
   });
 
-  test("findById retrieves a group subscription", async () => {
+  test("findById retrieves a product configuration profile", async () => {
     await SubscribePro.V3.ProductConfigurationProfiles.findById({client, id: 1});
     expect(client.request).toHaveBeenCalledWith({
       path: "/product-configuration-profiles/1",
@@ -18,7 +18,7 @@ describe("SubscribePro.V3.ProductConfigurationProfiles", () => {
     });
   });
 
-  test("findAll retrieves all group subscriptions", async () => {
+  test("findAll retrieves all product configuration profiles", async () => {
     await SubscribePro.V3.ProductConfigurationProfiles.findAll({client, params: {page: 1}});
     expect(client.request).toHaveBeenCalledWith({
       path: "/product-configuration-profiles?page=1",
