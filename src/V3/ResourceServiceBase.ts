@@ -40,16 +40,21 @@ export function ResourceReadable<
   };
 };
 
+type SearchParamBasicValues = string | string[] | number | number[]
+type SearchParamValues = SearchParamBasicValues | Record<string, SearchParamBasicValues>;
+export type SearchParamsBase = Record<string, SearchParamValues>
+
 export function ResourceSearchable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
-  SearchParams=Record<string, string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  SearchParams extends SearchParamsBase=Record<string, string>,
   CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
-    preProcessSearchParams(params: SearchParams): URLSearchParams {
+    preProcessSearchParams(params: SearchParamsBase): URLSearchParams {
       const searchParams = new URLSearchParams();
-      for (const key in params) {
+      for (const key of Object.keys(params)) {
         const value = params[key];
         if (Array.isArray(value)) {
           value.forEach((v) => searchParams.append(`${key}[]`, String(v)));
@@ -130,7 +135,7 @@ export function ResourceCRUDS<
   RecordType,
   CreateType=Partial<RecordType>,
   UpdateType=Partial<RecordType>,
-  SearchParams=Record<string, string>,
+  SearchParams extends SearchParamsBase=Record<string, string>,
   CollectionType=RecordType[]
 >(Base: T) {
   const BaseR = ResourceReadable<typeof Base, RecordType, CollectionType>(

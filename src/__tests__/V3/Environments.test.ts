@@ -8,7 +8,7 @@ describe("SubscribePro.V3.Environments", () => {
     client.request = jest.fn<Promise<any>, [any]>();
   });
 
-  test("findById retrieves a customer", async () => {
+  test("findById retrieves a environment", async () => {
     await SubscribePro.V3.Environments.findById({client, id: 1});
     expect(client.request).toHaveBeenCalledWith({
       path: "/environments/1",
@@ -16,7 +16,7 @@ describe("SubscribePro.V3.Environments", () => {
     });
   });
 
-  test("create creates a customer", async () => {
+  test("create creates an environment", async () => {
     const environment = {name: "Test Env"};
     await SubscribePro.V3.Environments.create({client, data: environment});
     expect(client.request).toHaveBeenCalledWith({
@@ -26,7 +26,7 @@ describe("SubscribePro.V3.Environments", () => {
     });
   });
 
-  test("update updates a customer", async () => {
+  test("update updates an environment", async () => {
     const environment = {name: "Test Env"};
     await SubscribePro.V3.Environments.update({client, id: 1, data: environment});
     expect(client.request).toHaveBeenCalledWith({
