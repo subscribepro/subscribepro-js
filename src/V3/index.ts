@@ -5,6 +5,7 @@ import GroupSubscriptions from "./GroupSubscriptions";
 import ProductConfigurationProfiles from "./ProductConfigurationProfiles";
 import Products from "./Products";
 import RightToBeForgottenRequests from "./RightToBeForgottenRequests";
+import SchedulingRules from "./SchedulingRules";
 import ShippingQuotes from "./ShippingQuotes";
 
 export const V3 = {
@@ -15,6 +16,7 @@ export const V3 = {
   ProductConfigurationProfiles,
   Products,
   RightToBeForgottenRequests,
+  SchedulingRules,
   ShippingQuotes,
 };
 
