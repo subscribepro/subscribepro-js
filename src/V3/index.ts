@@ -7,6 +7,7 @@ import Products from "./Products";
 import RightToBeForgottenRequests from "./RightToBeForgottenRequests";
 import SchedulingRules from "./SchedulingRules";
 import ShippingQuotes from "./ShippingQuotes";
+import Subscriptions from "./Subscriptions";
 
 export const V3 = {
   Customers,
@@ -18,6 +19,7 @@ export const V3 = {
   RightToBeForgottenRequests,
   SchedulingRules,
   ShippingQuotes,
+  Subscriptions,
 };
 
 export default V3;
