@@ -1,4 +1,4 @@
-import ResourceServiceBase, { ResourceReadable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable } from './ResourceServiceBase';
+import ResourceServiceBase, { ResourceReadable, ResourceSearchable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable } from './ResourceServiceBase';
 
 type CustomerAddressType = {
   id: number,
@@ -56,16 +56,19 @@ class CustomerAddressesServiceBase extends ResourceServiceBase<CustomerAddressTy
 
 };
 
-const CustomerAddressesServiceR = ResourceReadable<typeof CustomerAddressesServiceBase, CustomerAddressType, CustomerAddressSearchParams>(
+const CustomerAddressesServiceR = ResourceReadable<typeof CustomerAddressesServiceBase, CustomerAddressType>(
   CustomerAddressesServiceBase
 );
-const CustomerAddressesServiceRU = ResourceUpdateable<typeof CustomerAddressesServiceR, CustomerAddressType, UpdateCustomerAddressType>(
+const CustomerAddressesServiceRS = ResourceSearchable<typeof CustomerAddressesServiceR, CustomerAddressType, CustomerAddressSearchParams>(
   CustomerAddressesServiceR
 );
-const CustomerAddressesServiceCRU = ResourceCreateable<typeof CustomerAddressesServiceRU, CustomerAddressType, CreateCustomerAddressType>(
-  CustomerAddressesServiceRU
+const CustomerAddressesServiceRUS = ResourceUpdateable<typeof CustomerAddressesServiceRS, CustomerAddressType, UpdateCustomerAddressType>(
+  CustomerAddressesServiceRS
 );
-const CustomerAddressesService = ResourceDeleteable<typeof CustomerAddressesServiceCRU, CustomerAddressType>(CustomerAddressesServiceCRU);
+const CustomerAddressesServiceCRUS = ResourceCreateable<typeof CustomerAddressesServiceRUS, CustomerAddressType, CreateCustomerAddressType>(
+  CustomerAddressesServiceRUS
+);
+const CustomerAddressesService = ResourceDeleteable<typeof CustomerAddressesServiceCRUS, CustomerAddressType>(CustomerAddressesServiceCRUS);
 
 export const CustomerAddresses = new CustomerAddressesService();
 export default CustomerAddresses;

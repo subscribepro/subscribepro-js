@@ -1,4 +1,4 @@
-import ResourceServiceBase, { ResourceReadable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable } from './ResourceServiceBase';
+import ResourceServiceBase, { ResourceReadable, ResourceSearchable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable } from './ResourceServiceBase';
 import Client from '../Client';
 
 type CustomerType = {
@@ -41,17 +41,20 @@ class CustomersServiceBase extends ResourceServiceBase<CustomerType> {
 
 };
 
-const CustomersServiceR = ResourceReadable<typeof CustomersServiceBase, CustomerType, CustomerSearchParams>(
+const CustomersServiceR = ResourceReadable<typeof CustomersServiceBase, CustomerType>(
   CustomersServiceBase
 );
-const CustomersServiceRU = ResourceUpdateable<typeof CustomersServiceR, CustomerType, UpdateCustomerType>(
+const CustomersServiceRS = ResourceSearchable<typeof CustomersServiceR, CustomerType, CustomerSearchParams>(
   CustomersServiceR
 );
-const CustomersServiceCRU = ResourceCreateable<typeof CustomersServiceRU, CustomerType, CreateCustomerType>(
-  CustomersServiceRU
+const CustomersServiceRUS = ResourceUpdateable<typeof CustomersServiceRS, CustomerType, UpdateCustomerType>(
+  CustomersServiceRS
+);
+const CustomersServiceCRUS = ResourceCreateable<typeof CustomersServiceRUS, CustomerType, CreateCustomerType>(
+  CustomersServiceRUS
 );
 
-class CustomersService extends ResourceDeleteable<typeof CustomersServiceCRU, CustomerType>(CustomersServiceCRU) {
+class CustomersService extends ResourceDeleteable<typeof CustomersServiceCRUS, CustomerType>(CustomersServiceCRUS) {
   async me({client}:{client?:Client}):Promise<CustomerType | null> {
     return await this.findById({id: "me", client});
   }

@@ -1,4 +1,4 @@
-import ResourceServiceBase, { ResourceReadable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable } from './ResourceServiceBase';
+import ResourceServiceBase, { ResourceReadable, ResourceUpdateable, ResourceCreateable, ResourceDeleteable, ResourceSearchable } from './ResourceServiceBase';
 
 type ProductType = {
   id: number,
@@ -49,16 +49,19 @@ class ProductsServiceBase extends ResourceServiceBase<ProductType> {
   resourcePath({id}:{id:string|number}) { return `${this.collectionPath()}/${id}` };
 };
 
-const ProductsServiceR = ResourceReadable<typeof ProductsServiceBase, ProductType, ProductSearchParams>(
+const ProductsServiceR = ResourceReadable<typeof ProductsServiceBase, ProductType>(
   ProductsServiceBase
 );
-const ProductsServiceRU = ResourceUpdateable<typeof ProductsServiceR, ProductType, CreateProductType>(
+const ProductsServiceRS = ResourceSearchable<typeof ProductsServiceR, ProductType, ProductSearchParams>(
   ProductsServiceR
 );
-const ProductsServiceCRU = ResourceCreateable<typeof ProductsServiceRU, ProductType, CreateProductType>(
-  ProductsServiceRU
+const ProductsServiceRUS = ResourceUpdateable<typeof ProductsServiceRS, ProductType, CreateProductType>(
+  ProductsServiceRS
 );
-const ProductsService = ResourceDeleteable<typeof ProductsServiceCRU, ProductType>(ProductsServiceCRU);
+const ProductsServiceCRUS = ResourceCreateable<typeof ProductsServiceRUS, ProductType, CreateProductType>(
+  ProductsServiceRUS
+);
+const ProductsService = ResourceDeleteable<typeof ProductsServiceCRUS, ProductType>(ProductsServiceCRUS);
 
 export const Products = new ProductsService();
 export default Products;

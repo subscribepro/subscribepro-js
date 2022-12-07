@@ -28,6 +28,21 @@ type ResourceServiceBaseConstructor<TResult> = new (...args: any[]) => TResult;
 export function ResourceReadable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
+  CollectionType=RecordType[]
+>(Base: T) {
+  return class extends Base {
+    async findById({client, id}:{client?: Client, id:string|number}): Promise<RecordType | null> {
+      client ||= SubscribePro.client;
+
+      const response = await client.request({path: this.resourcePath({id}), method: "GET"})
+      return this.processJSONToRecord(response);
+    } 
+  };
+};
+
+export function ResourceSearchable<
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
   SearchParams=Record<string, string>,
   CollectionType=RecordType[]
 >(Base: T) {
@@ -44,13 +59,6 @@ export function ResourceReadable<
       }
       return searchParams;
     }
-
-    async findById({client, id}:{client?: Client, id:string|number}): Promise<RecordType | null> {
-      client ||= SubscribePro.client;
-
-      const response = await client.request({path: this.resourcePath({id}), method: "GET"})
-      return this.processJSONToRecord(response);
-    } 
   
     async findAll({client, params}:{client?: Client, params?: SearchParams}): Promise<CollectionType | null> {
       client ||= SubscribePro.client;
