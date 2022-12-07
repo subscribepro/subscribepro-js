@@ -8,6 +8,7 @@ import RightToBeForgottenRequests from "./RightToBeForgottenRequests";
 import SchedulingRules from "./SchedulingRules";
 import ShippingQuotes from "./ShippingQuotes";
 import Subscriptions from "./Subscriptions";
+import WebSessions from "./WebSessions";
 
 export const V3 = {
   Customers,
@@ -20,6 +21,7 @@ export const V3 = {
   SchedulingRules,
   ShippingQuotes,
   Subscriptions,
+  WebSessions,
 };
 
 export default V3;
