@@ -125,4 +125,27 @@ export function ResourceDeleteable<
   };
 };
 
+export function ResourceCRUDS<
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
+  CreateType=Partial<RecordType>,
+  UpdateType=Partial<RecordType>,
+  SearchParams=Record<string, string>,
+  CollectionType=RecordType[]
+>(Base: T) {
+  const BaseR = ResourceReadable<typeof Base, RecordType, CollectionType>(
+    Base
+  );
+  const BaseRS = ResourceSearchable<typeof BaseR, RecordType, SearchParams, CollectionType>(
+    BaseR
+  );
+  const BaseRUS = ResourceUpdateable<typeof BaseRS, RecordType, UpdateType, CollectionType>(
+    BaseRS
+  );
+  const BaseCRUS = ResourceCreateable<typeof BaseRUS, RecordType, CreateType, CollectionType>(
+    BaseRUS
+  );
+  return ResourceDeleteable<typeof BaseCRUS, RecordType, CollectionType>(BaseCRUS);
+};
+
 export default ResourceServiceBase;
