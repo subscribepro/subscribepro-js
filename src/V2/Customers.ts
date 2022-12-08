@@ -41,6 +41,14 @@ type CreateCustomerType = {
 
 type UpdateCustomerType = Partial<CreateCustomerType>;
 
+type CustomerSearchParams = {
+  platform_specific_customer_id?: string;
+  magento_customer_id?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+}
+
 class CustomersService extends ResourceServiceBase<CustomerType, CustomerType[]> {
   resourceName() { return 'customer'; }
   collectionName() { return 'customers'; }
@@ -50,8 +58,8 @@ class CustomersService extends ResourceServiceBase<CustomerType, CustomerType[]>
 };
 
 export const Customers = new (
-  ResourceCRUable<typeof CustomersService, CustomerType, CustomerType[], CreateCustomerType, UpdateCustomerType>(
-    CustomersService
-  )
+  ResourceCRUable<
+    typeof CustomersService, CustomerSearchParams, CustomerType, CustomerType[], CreateCustomerType, UpdateCustomerType
+  >(CustomersService)
 )();
 export default Customers;

@@ -100,6 +100,10 @@ type BulkCreateProductType = {
 
 type UpdateProductType = Partial<CreateProductType>;
 
+type ProductSearchParams = {
+  sku?: string;
+};
+
 class ProductsServiceBase extends ResourceServiceBase<ProductType, ProductType[]> {
   resourceName() { return 'product'; }
   collectionName() { return 'products'; }
@@ -109,13 +113,13 @@ class ProductsServiceBase extends ResourceServiceBase<ProductType, ProductType[]
 };
 
 const ProductsServiceCRU = ResourceCRUable<
-  typeof ProductsServiceBase, ProductType, ProductType[], CreateProductType, UpdateProductType
+  typeof ProductsServiceBase, ProductSearchParams, ProductType, ProductType[], CreateProductType, UpdateProductType
 >(
   ProductsServiceBase
 )
 
 const ProductsServiceBulkCreateWithCRUD = ResourceBulkCreateable<
-  typeof ProductsServiceCRU, BulkCreateProductType
+  typeof ProductsServiceCRU, ProductType, BulkCreateProductType
 >(
   ProductsServiceCRU
 )

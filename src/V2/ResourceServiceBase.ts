@@ -12,6 +12,16 @@ interface ResourceService<RecordType, CollectionType> {
   processJSONToCollection(json: JSONObject | null): CollectionType | null;
 };
 
+type PaginationFragment = {
+  since_id?: string;
+  count?: number;
+};
+
+type SearchResults<CollectionType> = {
+  results: CollectionType | null;
+  pagination?: PaginationFragment;
+};
+
 export abstract class ResourceServiceBase<RecordType, CollectionType> implements ResourceService<RecordType, CollectionType> {
   abstract resourceName(): string;
   abstract collectionName(): string;
@@ -20,7 +30,7 @@ export abstract class ResourceServiceBase<RecordType, CollectionType> implements
   abstract resourcePath({id}:{id:string|number}): string;
 
   processJSONToRecord(json: JSONObject | null): RecordType | null {
-    return json ? json as RecordType : null;
+    return json ? json[this.resourceName()] as RecordType : null;
   }
 
   processJSONToCollection(json: JSONObject | null): CollectionType | null {
@@ -37,10 +47,24 @@ type ResourceServiceBaseConstructor<TResult> = new (...args: any[]) => TResult;
 
 export function ResourceCRUable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  SearchParams extends Record<string, string | string[] | number | number[]>,
   RecordType, CollectionType=RecordType[],
   CreateType=Partial<RecordType>, UpdateType=CreateType
 >(Base: T) {
   return class extends Base {
+    preProcessSearchParams(params: SearchParams): URLSearchParams {
+      const searchParams = new URLSearchParams();
+      for (const key of Object.keys(params)) {
+        const value = params[key];
+        if (Array.isArray(value)) {
+          value.forEach((v) => searchParams.append(`${key}[]`, String(v)));
+        } else {
+          searchParams.append(key, String(params[key]));
+        }
+      }
+      return searchParams;
+    }
+
     async getOne({ client, id }: { client?: Client, id: string|number }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
 
@@ -48,11 +72,18 @@ export function ResourceCRUable<
       return this.processJSONToRecord(response);
     }
 
-    async getAll({ client }: { client?: Client }): Promise<CollectionType | null> {
+    async getAll({ client, params }: { client?: Client, params?: SearchParams }): Promise<SearchResults<CollectionType>> {
       client ||= SubscribePro.client;
 
-      const response = await client.request({ path: this.collectionPath(), method: "GET"});
-      return this.processJSONToCollection(response);
+      let path = this.collectionPath();
+      if (params) {
+        path = `${path}?${this.preProcessSearchParams(params).toString()}`;
+      }
+      const response = await client.request({ path, method: "GET"});
+      return {
+        results: this.processJSONToCollection(response),
+        pagination: response?.pagination as PaginationFragment | undefined
+      };
     }
 
     async createOne({ client, data }: { client?: Client, data: CreateType }): Promise<RecordType | null> {
@@ -81,10 +112,31 @@ export function ResourceCRUable<
   };
 };
 
+export function ResourceDeleteable<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
+  CollectionType=RecordType[]
+>(Base: T) {
+  return class extends Base {
+    async delete({ client, id }: { client?: Client, id: string|number }): Promise<null> {
+      client ||= SubscribePro.client;
+  
+      await client.request({
+        path: this.resourcePath({id}),
+        method: "DELETE",
+      });
+      return null;
+    }
+  }
+};
+
 export function ResourceBulkCreateable<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  T extends ResourceServiceBaseConstructor<ResourceService<any, any>>,
-  BulkCreateType
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
+  BulkCreateType,
+  CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
     async createAll({ client, data }: { client?: Client, data: BulkCreateType }): Promise<null> {
@@ -109,8 +161,9 @@ export type JSONPatchData = {
 
 export function ResourcePatchable<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, any>>,
-  RecordType
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
+  CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
     async patchOne({ client, id, data }: { client?: Client, id: string|number, data: JSONPatchData }): Promise<RecordType | null> {

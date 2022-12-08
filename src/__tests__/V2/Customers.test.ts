@@ -23,6 +23,14 @@ describe("SubscribePro.V2.Customers", () => {
     });
   });
 
+  test("getAll with params retrieves all customers with filter", async () => {
+    await SubscribePro.V2.Customers.getAll({client, params: { email: "test@example.com" }});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/customers?email=test%40example.com",
+      method: "GET",
+    });
+  });
+
   test("createOne creates a customer", async () => {
     const customer = {email: "test@example.com", first_name: "First", last_name: "Last"};
     await SubscribePro.V2.Customers.createOne({client, data: customer});

@@ -24,6 +24,14 @@ describe("SubscribePro.V2.Products", () => {
     });
   });
 
+  test("getAll with search retrieves all products with sku", async () => {
+    await SubscribePro.V2.Products.getAll({client, params: {sku: "abc"}});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/products?sku=abc",
+      method: "GET",
+    });
+  });
+
   test("createOne creates a product", async () => {
     const product = {name: "Product", sku: "SKU", price: "1.00"};
     await SubscribePro.V2.Products.createOne({client, data: product});
