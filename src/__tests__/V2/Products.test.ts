@@ -43,9 +43,7 @@ describe("SubscribePro.V2.Products", () => {
   });
 
   test("createAll creates a product", async () => {
-    const products = {
-      products: [ {name: "Product", sku: "SKU", price: "1.00"} ]
-    };
+    const products = [ {name: "Product", sku: "SKU", price: "1.00"} ];
     await SubscribePro.V2.Products.createAll({client, data: products});
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/products",

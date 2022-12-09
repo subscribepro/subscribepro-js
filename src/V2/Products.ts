@@ -94,9 +94,7 @@ type CreateProductType = {
   trial_welcome_email_template_code?: string;
 };
 
-type BulkCreateProductType = {
-  products: CreateProductType[];
-};
+type BulkCreateProductType = CreateProductType[];
 
 type UpdateProductType = Partial<CreateProductType>;
 
