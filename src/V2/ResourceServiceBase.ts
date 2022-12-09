@@ -103,11 +103,12 @@ export function ResourceCreateable<
   return class extends Base {
     async createOne({ client, data }: { client?: Client, data: CreateType }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
+      const {_meta, ...params} = {_meta: undefined, ...data};
 
       const response = await client.request({
         path: this.singularPath(),
         method: "POST",
-        body: JSON.stringify({[this.resourceName()]: data}),
+        body: JSON.stringify({[this.resourceName()]: params, _meta}),
       });
       return this.processJSONToRecord(response);
     }
@@ -123,11 +124,12 @@ export function ResourceUpdateable<
   return class extends Base {
     async updateOne({ client, id, data }: { client?: Client, id: string|number, data: UpdateType }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
+      const {_meta, ...params} = {_meta: undefined, ...data};
 
       const response = await client.request({
         path: this.resourcePath({id}),
         method: "POST",
-        body: JSON.stringify({[this.resourceName()]: data}),
+        body: JSON.stringify({[this.resourceName()]: params, _meta}),
       });
       return this.processJSONToRecord(response);
     }
@@ -179,16 +181,17 @@ export function ResourceBulkCreateable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   BulkCreateType,
-  CollectionType=RecordType[]
+  CollectionType=RecordType[],
+  MetaType=never
 >(Base: T) {
   return class extends Base {
-    async createAll({ client, data }: { client?: Client, data: BulkCreateType }): Promise<null> {
+    async createAll({ client, data, _meta }: { client?: Client, data: BulkCreateType, _meta?: MetaType }): Promise<null> {
       client ||= SubscribePro.client;
   
       await client.request({
         path: this.collectionPath(),
         method: "POST",
-        body: JSON.stringify({[this.collectionName()]: data}),
+        body: JSON.stringify({[this.collectionName()]: data, _meta}),
       });
       return null;
     }

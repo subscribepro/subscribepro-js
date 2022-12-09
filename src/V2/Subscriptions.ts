@@ -1,4 +1,5 @@
-import { JSONArray, JSONObject } from '../Client';
+import Client, { JSONArray, JSONObject } from '../Client';
+import SubscribePro from '../SubscribePro';
 import { AddressType, UpdateAddressType } from './Addresses';
 import { PaymentProfileType } from './PaymentProfiles';
 import ResourceServiceBase, { ResourceBulkCreateable, ResourceCRUable, ResourcePatchable } from './ResourceServiceBase'
@@ -51,17 +52,19 @@ type SubscriptionType = {
   updated: string;
 };
 
-type SubscriptionChangeAttributionType = {
-  customer?: {
-    customer_id?: string;
-    email?: string;
-    full_name?: string;
-  },
-  admin?: {
-    customer_id?: string;
-    email?: string;
-    full_name?: string;
-  },
+type SubscriptionMetaType = {
+  changed_by?: {
+    customer?: {
+      customer_id?: string;
+      email?: string;
+      full_name?: string;
+    },
+    admin?: {
+      user_id?: string;
+      email?: string;
+      full_name?: string;
+    },
+  };
 };
 
 type CreateSubscriptionType = {
@@ -91,10 +94,10 @@ type CreateSubscriptionType = {
   ecommerce_store_code?: string;
   platform_specific_fields?: JSONObject;
   user_defined_fields?: JSONObject | JSONArray;
-  _meta?: SubscriptionChangeAttributionType;
+  _meta?: SubscriptionMetaType & { order_details?: JSONObject };
 };
 
-type BulkCreateSubscriptionType = CreateSubscriptionType[];
+type BulkCreateSubscriptionType = Omit<CreateSubscriptionType, "_meta">[];
 
 type UpdateSubscriptionType = Partial<CreateSubscriptionType>;
 
@@ -102,6 +105,22 @@ type SubscriptionSearchParams = {
   customer_id?: string;
   payment_profile_id?: number;
 };
+
+type CancelSubscriptionParams = {
+  send_customer_notification_email?: boolean;
+  _meta?: SubscriptionMetaType;
+};
+
+type PauseSubscriptionParams = {
+  _meta?: SubscriptionMetaType;
+};
+
+type RestartSubscriptionParams = {
+  next_order_date?: string;
+  _meta?: SubscriptionMetaType;
+};
+
+type SkipSubscriptionParams = PauseSubscriptionParams;
 
 class SubscriptionsServiceBase extends ResourceServiceBase<SubscriptionType, SubscriptionType[]> {
   resourceName() { return 'subscription'; }
@@ -112,20 +131,75 @@ class SubscriptionsServiceBase extends ResourceServiceBase<SubscriptionType, Sub
 };
 
 const SubscriptionsServiceCRU = ResourceCRUable<
-  typeof SubscriptionsServiceBase, SubscriptionSearchParams, SubscriptionType, SubscriptionType[], CreateSubscriptionType, UpdateSubscriptionType
+  typeof SubscriptionsServiceBase, SubscriptionSearchParams, SubscriptionType,
+  SubscriptionType[], CreateSubscriptionType, UpdateSubscriptionType
 >(
   SubscriptionsServiceBase
 )
 
 const SubscriptionsServiceBulkCreateWithCRUD = ResourceBulkCreateable<
-  typeof SubscriptionsServiceCRU, SubscriptionType, BulkCreateSubscriptionType
+  typeof SubscriptionsServiceCRU, SubscriptionType, BulkCreateSubscriptionType,
+  SubscriptionType[], SubscriptionMetaType
 >(
   SubscriptionsServiceCRU
 )
 
-const SubscriptionsService = ResourcePatchable<typeof SubscriptionsServiceBulkCreateWithCRUD, SubscriptionType>(
-  SubscriptionsServiceBulkCreateWithCRUD
-);
+class SubscriptionsService extends ResourcePatchable<
+  typeof SubscriptionsServiceBulkCreateWithCRUD, SubscriptionType
+>(SubscriptionsServiceBulkCreateWithCRUD) {
+  generateSubscriptionActionBody(params?: JSONObject):string|undefined {
+    let body:string|undefined;
+    if (params) {
+      const {_meta, ...subscription} = params ?? {};
+      body = JSON.stringify({subscription, _meta});
+    }
+    return body;
+  }
+
+  async cancel({client, id, params}:{client?: Client, id: string|number, params?: CancelSubscriptionParams}): Promise<null> {
+    client ||= SubscribePro.client;
+
+    await client.request({
+      method: 'POST',
+      path: `${this.resourcePath({id})}/cancel`,
+      body: this.generateSubscriptionActionBody(params),
+    });
+    return null;
+  }
+
+  async pause({client, id, params}:{client?: Client, id: string|number, params?: PauseSubscriptionParams}): Promise<null> {
+    client ||= SubscribePro.client;
+
+    await client.request({
+      method: 'POST',
+      path: `${this.resourcePath({id})}/pause`,
+      body: this.generateSubscriptionActionBody(params),
+    });
+    return null;
+  }
+
+  async restart({client, id, params}:{client?: Client, id: string|number, params?: RestartSubscriptionParams}): Promise<null> {
+    client ||= SubscribePro.client;
+
+    await client.request({
+      method: 'POST',
+      path: `${this.resourcePath({id})}/restart`,
+      body: this.generateSubscriptionActionBody(params),
+    });
+    return null;
+  }
+
+  async skip({client, id, params}:{client?: Client, id: string|number, params?: SkipSubscriptionParams}): Promise<null> {
+    client ||= SubscribePro.client;
+
+    await client.request({
+      method: 'POST',
+      path: `${this.resourcePath({id})}/skip`,
+      body: this.generateSubscriptionActionBody(params),
+    });
+    return null;
+  }
+};
 
 export const Subscriptions = new SubscriptionsService();
 export default Subscriptions;

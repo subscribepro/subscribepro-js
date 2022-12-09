@@ -74,11 +74,12 @@ describe("SubscribePro.V2.Subscriptions", () => {
       requires_shipping: false,
       shipping_address: { first_name: "John", last_name: "Doe", },
     };
-    await SubscribePro.V2.Subscriptions.updateOne({client, id: 1, data: subscription});
+    const _meta = { changed_by: { admin: { user_id: '1' } } };
+    await SubscribePro.V2.Subscriptions.updateOne({client, id: 1, data: {_meta, ...subscription}});
     expect(client.request).toHaveBeenCalledWith({
       path: "/services/v2/subscriptions/1",
       method: "POST",
-      body: JSON.stringify({subscription}),
+      body: JSON.stringify({subscription, _meta}),
     });
   });
 
@@ -99,6 +100,38 @@ describe("SubscribePro.V2.Subscriptions", () => {
       path: "/services/v2/subscriptions",
       method: "PATCH",
       body: JSON.stringify([patch]),
+    });
+  });
+
+  test("cancel cancels a subscription", async () => {
+    await SubscribePro.V2.Subscriptions.cancel({client, id: 1});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/subscriptions/1/cancel",
+      method: "POST",
+    });
+  });
+
+  test("pause pauses a subscription", async () => {
+    await SubscribePro.V2.Subscriptions.pause({client, id: 1});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/subscriptions/1/pause",
+      method: "POST",
+    });
+  });
+
+  test("restart restarts a subscription", async () => {
+    await SubscribePro.V2.Subscriptions.restart({client, id: 1});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/subscriptions/1/restart",
+      method: "POST",
+    });
+  });
+
+  test("skip skips a subscription", async () => {
+    await SubscribePro.V2.Subscriptions.skip({client, id: 1});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/subscriptions/1/skip",
+      method: "POST",
     });
   });
 });
