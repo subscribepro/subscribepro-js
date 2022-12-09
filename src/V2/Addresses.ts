@@ -44,7 +44,7 @@ type CreateAddressType = {
   user_defined_fields?: JSONObject;
 };
 
-type UpdateAddressType = Partial<Omit<CreateAddressType, "customer_id">>;
+export type UpdateAddressType = Partial<Omit<CreateAddressType, "customer_id">>;
 
 type AddressSearchParams = {
   customer_id?: string;

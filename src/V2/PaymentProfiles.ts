@@ -7,7 +7,7 @@ type ProfileType = "external_vault" | "spreedly_dual_vault" | "spreedly_vault";
 type PaymentMethodType = "credit_card" | "third_party_token" | "apple_pay" | "android_pay" | "bank_account";
 type CreditCardType = "visa" | "master" | "american_express" | "discover" | "jcb" | "diners_club" | "dankort";
 
-type PaymentProfileType = {
+export type PaymentProfileType = {
   id: number;
   customer_id: string;
   magento_customer_id?: string;
