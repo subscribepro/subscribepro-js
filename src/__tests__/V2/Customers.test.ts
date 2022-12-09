@@ -41,7 +41,7 @@ describe("SubscribePro.V2.Customers", () => {
     });
   });
 
-  test("updateOne updates a product", async () => {
+  test("updateOne updates a customer", async () => {
     const customer = {email: "test@example.com", first_name: "First", last_name: "Last"};
     await SubscribePro.V2.Customers.updateOne({client, id: 1, data: customer});
     expect(client.request).toHaveBeenCalledWith({

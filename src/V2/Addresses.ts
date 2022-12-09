@@ -2,7 +2,7 @@ import Client, { JSONArray, JSONObject } from '../Client';
 import SubscribePro from '../SubscribePro';
 import ResourceServiceBase, { ResourceCRUable, ResourceDeleteable } from './ResourceServiceBase'
 
-type AddressType = {
+export type AddressType = {
   id: number;
   customer_id: string;
   magento_address_id?: string;
