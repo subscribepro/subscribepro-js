@@ -45,11 +45,24 @@ export abstract class ResourceServiceBase<RecordType, CollectionType> implements
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ResourceServiceBaseConstructor<TResult> = new (...args: any[]) => TResult;
 
-export function ResourceCRUable<
+export function ResourceReadable<
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType, CollectionType=RecordType[],
+>(Base: T) {
+  return class extends Base {
+    async getOne({ client, id }: { client?: Client, id: string|number }): Promise<RecordType | null> {
+      client ||= SubscribePro.client;
+
+      const response = await client.request({ path: this.resourcePath({id}), method: "GET" });
+      return this.processJSONToRecord(response);
+    }
+  };
+};
+
+export function ResourceSearchable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   SearchParams extends Record<string, string | string[] | number | number[]>,
-  RecordType, CollectionType=RecordType[],
-  CreateType=Partial<RecordType>, UpdateType=CreateType
+  RecordType, CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
     preProcessSearchParams(params: SearchParams): URLSearchParams {
@@ -65,13 +78,6 @@ export function ResourceCRUable<
       return searchParams;
     }
 
-    async getOne({ client, id }: { client?: Client, id: string|number }): Promise<RecordType | null> {
-      client ||= SubscribePro.client;
-
-      const response = await client.request({ path: this.resourcePath({id}), method: "GET" });
-      return this.processJSONToRecord(response);
-    }
-
     async getAll({ client, params }: { client?: Client, params?: SearchParams }): Promise<SearchResults<CollectionType>> {
       client ||= SubscribePro.client;
 
@@ -85,7 +91,16 @@ export function ResourceCRUable<
         pagination: response?.pagination as PaginationFragment | undefined
       };
     }
+  };
+};
 
+export function ResourceCreateable<
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
+  CreateType=Partial<RecordType>,
+  CollectionType=RecordType[]
+>(Base: T) {
+  return class extends Base {
     async createOne({ client, data }: { client?: Client, data: CreateType }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
 
@@ -96,7 +111,16 @@ export function ResourceCRUable<
       });
       return this.processJSONToRecord(response);
     }
+  };
+};
 
+export function ResourceUpdateable<
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  RecordType,
+  UpdateType=Partial<RecordType>,
+  CollectionType=RecordType[]
+>(Base: T) {
+  return class extends Base {
     async updateOne({ client, id, data }: { client?: Client, id: string|number, data: UpdateType }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
 
@@ -107,10 +131,29 @@ export function ResourceCRUable<
       });
       return this.processJSONToRecord(response);
     }
-
-    
   };
 };
+
+export function ResourceCRUable<
+  T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
+  SearchParams extends Record<string, string | string[] | number | number[]>,
+  RecordType, CollectionType=RecordType[],
+  CreateType=Partial<RecordType>, UpdateType=CreateType
+>(Base: T) {
+  const BaseR = ResourceReadable<typeof Base, RecordType, CollectionType>(
+    Base
+  );
+  const BaseRS = ResourceSearchable<typeof BaseR, SearchParams, RecordType, CollectionType>(
+    BaseR
+  );
+  const BaseRUS = ResourceUpdateable<typeof BaseRS, RecordType, UpdateType, CollectionType>(
+    BaseRS
+  );
+  return ResourceCreateable<typeof BaseRUS, RecordType, CreateType, CollectionType>(
+    BaseRUS
+  );
+};
+
 
 export function ResourceDeleteable<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,11 +1,13 @@
 import Addresses from "./Addresses";
-import Products from "./Products";
 import Customers from "./Customers";
+import PaymentProfiles from "./PaymentProfiles";
+import Products from "./Products";
 
 export const V2 = {
   Addresses,
-  Products,
   Customers,
+  PaymentProfiles,
+  Products,
 };
 
 export default V2;
