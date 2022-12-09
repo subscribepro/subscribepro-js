@@ -45,6 +45,7 @@ type PaymentProfileType = {
 
 type RequiredAddressFields = "first_name" | "last_name" | "street1" | "city" | "region" | "postcode" | "country";
 type CreateAddressTypeForPaymentProfile = Pick<AddressType, RequiredAddressFields> & Partial<Omit<AddressType, RequiredAddressFields>>;
+type CreateAddressTypeForApplePayToken = Pick<AddressType, "first_name" | "last_name"> & Partial<Omit<AddressType, "first_name" | "last_name">>;
 
 type CreateApplePayPaymentProfileType = {
   customer_id: string;
@@ -110,6 +111,28 @@ type UpdatePaymentProfileType = UpdateSpreedlyCreditCardPaymentProfileType |
                                 UpdateExternalCreditCardPaymentProfileType |
                                 UpdateExternalPaymentProfileType;
 
+type ApplePayTokenParams = {
+  applepay_payment_data: string
+  test_card_number?: string;
+  email?: string;
+  billing_address: CreateAddressTypeForApplePayToken;
+};
+
+type ApplePayAuthorizeAndStoreParams = {
+  _v: string;
+  merchant_account_id: string;
+  session_id: string;
+  order_no: string;
+  payment: {
+    payment_id: string;
+    type: "ApplePay";
+    amount: string;
+    currency: string;
+    token: string;
+  };
+  customer_info: { email: string };
+};
+
 type PaymentProfileSearchParams = {
   customer_id?: string;
   customer_email?: string;
@@ -152,6 +175,28 @@ class PaymentProfilesService extends ResourceUpdateable<typeof PaymentProfilesSe
       body: JSON.stringify({[this.resourceName()]: data}),
     });
     return this.processJSONToRecord(response);
+  }
+
+  async createApplePayToken({ client, data }: { client?: Client, data: ApplePayTokenParams }): Promise<null> {
+    client ||= SubscribePro.client;
+
+    await client.request({
+      path: "/services/v2/vault/token/applepay",
+      method: "POST",
+      body: JSON.stringify({token: data}),
+    });
+    return null;
+  }
+
+  async createSFCCApplePayAuthorizeAndStore({ client, data }: { client?: Client, data: ApplePayAuthorizeAndStoreParams }): Promise<null> {
+    client ||= SubscribePro.client;
+
+    await client.request({
+      path: "/services/v2/vault/sfcc/applepay/authorize-and-store",
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return null;
   }
 
   async createBankAccount({ client, data }: { client?: Client, data: CreateBankAccountPaymentProfileType }): Promise<PaymentProfileType | null> {
