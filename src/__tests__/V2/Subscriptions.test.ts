@@ -134,4 +134,12 @@ describe("SubscribePro.V2.Subscriptions", () => {
       method: "POST",
     });
   });
+
+  test("upcomingOrderDates gets a subscription's upcoming order dates", async () => {
+    await SubscribePro.V2.Subscriptions.upcomingOrderDates({client, id: 1});
+    expect(client.request).toHaveBeenCalledWith({
+      path: "/services/v2/subscriptions/1/upcoming-order-dates",
+      method: "GET",
+    });
+  });
 });

@@ -122,6 +122,14 @@ type RestartSubscriptionParams = {
 
 type SkipSubscriptionParams = PauseSubscriptionParams;
 
+type UpcomingOrderDatesSubscriptionParams = {
+  ["order-count"]?: string;
+};
+
+type UpcomingSubscriptionOrderDatesType = {
+  upcoming_order_dates: string[];
+};
+
 class SubscriptionsServiceBase extends ResourceServiceBase<SubscriptionType, SubscriptionType[]> {
   resourceName() { return 'subscription'; }
   collectionName() { return 'subscriptions'; }
@@ -196,6 +204,20 @@ class SubscriptionsService extends ResourcePatchable<
       method: 'POST',
       path: `${this.resourcePath({id})}/skip`,
       body: this.generateSubscriptionActionBody(params),
+    });
+    return null;
+  }
+
+  async upcomingOrderDates({client, id, params}:{client?: Client, id: string|number, params?: UpcomingOrderDatesSubscriptionParams}): Promise<UpcomingSubscriptionOrderDatesType | null> {
+    client ||= SubscribePro.client;
+    let path = `${this.resourcePath({id})}/upcoming-order-dates`;
+    if (params) {
+      path = `${path}?${this.preProcessSearchParams(params).toString()}`;
+    }
+
+    await client.request({
+      method: 'GET',
+      path,
     });
     return null;
   }

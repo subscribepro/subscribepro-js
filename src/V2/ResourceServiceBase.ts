@@ -59,13 +59,17 @@ export function ResourceReadable<
   };
 };
 
+type SearchParamBasicValues = string | string[] | number | number[]
+type SearchParamValues = SearchParamBasicValues | Record<string, SearchParamBasicValues>;
+export type SearchParamsBase = Record<string, SearchParamValues>
+
 export function ResourceSearchable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
-  SearchParams extends Record<string, string | string[] | number | number[]>,
+  SearchParams extends SearchParamsBase,
   RecordType, CollectionType=RecordType[]
 >(Base: T) {
   return class extends Base {
-    preProcessSearchParams(params: SearchParams): URLSearchParams {
+    preProcessSearchParams(params: SearchParamsBase): URLSearchParams {
       const searchParams = new URLSearchParams();
       for (const key of Object.keys(params)) {
         const value = params[key];
