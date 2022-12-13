@@ -9,14 +9,42 @@ interface ResourceService<RecordType, CollectionType=RecordType[]> {
   processJSONToCollection(json: JSONObject | null): CollectionType | null;
 };
 
+/**
+ * Base class for all resource services.
+ * @internal
+ */
 export abstract class ResourceServiceBase<RecordType, CollectionType=RecordType[]> {
+  /**
+   * @returns The path to the collection of resources.
+   * @internal
+   */
   abstract collectionPath():string;
+
+  /**
+   * @param id - The id of the resource.
+   * @returns The path to the resource.
+   * @internal
+   */
   abstract resourcePath({id}:{id:string|number}):string;
 
+  /**
+   * Converts a JSON object to a RecordType.
+   * 
+   * @param json - The JSON object to convert or null.
+   * @returns The converted RecordType or null.
+   * @internal
+   */
   processJSONToRecord(json: JSONObject | null): RecordType | null {
     return json ? json as RecordType : null;
   }
 
+  /**
+   * Converts a JSON object to a CollectionType.
+   * 
+   * @param json - The JSON object to convert or null.
+   * @returns The converted CollectionType or null.
+   * @internal
+   */
   processJSONToCollection(json: JSONObject | null): CollectionType | null {
     return json ? json as CollectionType : null;
   }
@@ -24,13 +52,26 @@ export abstract class ResourceServiceBase<RecordType, CollectionType=RecordType[
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ResourceServiceBaseConstructor<TResult> = new (...args: any[]) => TResult;
-
+interface IFaceResourceReadable<RecordType> {
+  findById({client, id}:{client?: Client, id:string|number}): Promise<RecordType | null>;
+}
+/**
+ * Adds a `findById` method to the base class.
+ * @internal
+ * 
+ * @param Base - The base class to extend that inherits from
+ * ResourceServiceBase<>
+ * @typeParam T - The base class to extend that inherits from. Example: `typeof Base`
+ * @typeParam RecordType - The type of the record.
+ * @typeParam CollectionType - The type of the collection. Defaults to `RecordType[]`
+ * @returns 
+ */
 export function ResourceReadable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   CollectionType=RecordType[]
 >(Base: T) {
-  return class extends Base {
+  return class extends Base implements IFaceResourceReadable<RecordType> {
     async findById({client, id}:{client?: Client, id:string|number}): Promise<RecordType | null> {
       client ||= SubscribePro.client;
 

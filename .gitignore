@@ -1,3 +1,5 @@
 .yarnrc
 lib
 node_modules/
+docs/
+
