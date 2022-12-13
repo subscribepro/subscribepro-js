@@ -45,11 +45,21 @@ export abstract class ResourceServiceBase<RecordType, CollectionType> implements
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ResourceServiceBaseConstructor<TResult> = new (...args: any[]) => TResult;
 
+export interface IResourceReadable<RecordType> {
+  /**
+   * Retrieve a single resource by id.
+   * 
+   * @param client - The client to use for the request. If not provided, the default client will be used.
+   * @param id - The id of the resource. 
+   */
+  getOne({ client, id }: { client?: Client, id: string|number }): Promise<RecordType | null>;
+};
+
 export function ResourceReadable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType, CollectionType=RecordType[],
 >(Base: T) {
-  return class extends Base {
+  return class ResourceReadable extends Base implements IResourceReadable<RecordType> {
     async getOne({ client, id }: { client?: Client, id: string|number }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
 
@@ -62,13 +72,16 @@ export function ResourceReadable<
 type SearchParamBasicValues = string | string[] | number | number[]
 type SearchParamValues = SearchParamBasicValues | Record<string, SearchParamBasicValues>;
 export type SearchParamsBase = Record<string, SearchParamValues>
+export interface IResourceSearchable<RecordType, SearchParams extends SearchParamsBase, CollectionType=RecordType[]> {
+  getAll({ client, params }: { client?: Client, params?: SearchParams }): Promise<SearchResults<CollectionType>>;
+};
 
 export function ResourceSearchable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   SearchParams extends SearchParamsBase,
   RecordType, CollectionType=RecordType[]
 >(Base: T) {
-  return class extends Base {
+  return class ResourceSearchable extends Base implements IResourceSearchable<RecordType, SearchParams, CollectionType> {
     preProcessSearchParams(params: SearchParamsBase): URLSearchParams {
       const searchParams = new URLSearchParams();
       for (const key of Object.keys(params)) {
@@ -98,13 +111,16 @@ export function ResourceSearchable<
   };
 };
 
+export interface IResourceCreateable<RecordType, CreateType=Partial<RecordType>> {
+  createOne({ client, data }: { client?: Client, data: CreateType }): Promise<RecordType | null>;
+};
 export function ResourceCreateable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   CreateType=Partial<RecordType>,
   CollectionType=RecordType[]
 >(Base: T) {
-  return class extends Base {
+  return class ResourceCreateable extends Base implements IResourceCreateable<RecordType, CreateType> {
     async createOne({ client, data }: { client?: Client, data: CreateType }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
       const {_meta, ...params} = {_meta: undefined, ...data};
@@ -119,13 +135,17 @@ export function ResourceCreateable<
   };
 };
 
+export interface IResourceUpdateable<RecordType, UpdateType=Partial<RecordType>> {
+  updateOne({ client, id, data }: {client?: Client; id: string | number; data: UpdateType;}):
+    Promise<RecordType | null>;
+};
 export function ResourceUpdateable<
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   UpdateType=Partial<RecordType>,
   CollectionType=RecordType[]
 >(Base: T) {
-  return class extends Base {
+  return class ResourceUpdateable extends Base implements IResourceUpdateable<RecordType, UpdateType> {
     async updateOne({ client, id, data }: { client?: Client, id: string|number, data: UpdateType }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
       const {_meta, ...params} = {_meta: undefined, ...data};
@@ -160,14 +180,16 @@ export function ResourceCRUable<
   );
 };
 
+export interface IResourceDeleteable {
+  delete({ client, id }: { client?: Client, id: string|number }): Promise<null>;
+};
 
 export function ResourceDeleteable<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   CollectionType=RecordType[]
 >(Base: T) {
-  return class extends Base {
+  return class ResourceDeleteable extends Base implements IResourceDeleteable {
     async delete({ client, id }: { client?: Client, id: string|number }): Promise<null> {
       client ||= SubscribePro.client;
   
@@ -180,15 +202,18 @@ export function ResourceDeleteable<
   }
 };
 
+export interface IResourceBulkCreateable<RecordType, PatchType=Partial<RecordType>, MetaType=never> {
+  createAll({ client, data, _meta }: { client?: Client, data: PatchType, _meta?: MetaType }): Promise<null>;
+};
+
 export function ResourceBulkCreateable<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   BulkCreateType,
   CollectionType=RecordType[],
   MetaType=never
 >(Base: T) {
-  return class extends Base {
+  return class ResourceBulkCreateable extends Base implements IResourceBulkCreateable<RecordType, BulkCreateType, MetaType> {
     async createAll({ client, data, _meta }: { client?: Client, data: BulkCreateType, _meta?: MetaType }): Promise<null> {
       client ||= SubscribePro.client;
   
@@ -208,14 +233,17 @@ export type JSONPatchData = {
   path: string;
   value?: JSONValue;
 };
+export interface IResourcePatchable<RecordType> {
+  patchOne({ client, id, data }: { client?: Client, id: string|number, data: JSONPatchData }): Promise<RecordType | null>;
+  patchAll({ client, data }: { client?: Client, data: JSONPatchData[] }): Promise<null>;
+};
 
 export function ResourcePatchable<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends ResourceServiceBaseConstructor<ResourceService<RecordType, CollectionType>>,
   RecordType,
   CollectionType=RecordType[]
 >(Base: T) {
-  return class extends Base {
+  return class ResourcePatchable extends Base implements IResourcePatchable<RecordType> {
     async patchOne({ client, id, data }: { client?: Client, id: string|number, data: JSONPatchData }): Promise<RecordType | null> {
       client ||= SubscribePro.client;
 

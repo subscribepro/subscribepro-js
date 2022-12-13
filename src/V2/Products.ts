@@ -1,5 +1,5 @@
 import { JSONObject } from '../Client';
-import ResourceServiceBase, { ResourceBulkCreateable, ResourceCRUable, ResourcePatchable } from './ResourceServiceBase'
+import ResourceServiceBase, { IResourceBulkCreateable, IResourceCreateable, IResourcePatchable, IResourceReadable, IResourceSearchable, IResourceUpdateable, ResourceBulkCreateable, ResourceCRUable, ResourcePatchable } from './ResourceServiceBase'
 
 type ProductConfigurationProfileType = {
   id: number;
@@ -126,5 +126,14 @@ const ProductsService = ResourcePatchable<typeof ProductsServiceBulkCreateWithCR
   ProductsServiceBulkCreateWithCRUD
 );
 
-export const Products = new ProductsService();
+/**
+ * Products Service
+ */
+export interface IProductsService extends IResourceReadable<ProductType>,
+                                   IResourceSearchable<ProductSearchParams, ProductSearchParams>,
+                                   IResourceCreateable<ProductType, CreateProductType>,
+                                   IResourceUpdateable<ProductType, UpdateProductType>,
+                                   IResourcePatchable<ProductType>,
+                                   IResourceBulkCreateable<ProductType, BulkCreateProductType> {};
+export const Products = new ProductsService() as IProductsService;
 export default Products;
